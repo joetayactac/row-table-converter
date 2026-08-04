@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AppSheet HTML Table Formula Generator</title>
+<meta name="description" content="Convert AppSheet columns into a ready-to-copy HTML table CONCATENATE() formula.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <span class="brand-mark">ƒx</span>
+      <div class="brand-text">
+        <h1>AppSheet HTML Table Formula Generator</h1>
+        <p>Build a <code>CONCATENATE()</code> formula that renders your columns as an HTML table.</p>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="layout">
+
+  <!-- ============ CONFIG COLUMN ============ -->
+  <section class="col col-config">
+
+    <div class="card" id="columns-card">
+      <div class="card-head">
+        <h2>Columns</h2>
+        <span class="card-hint">Drag order with the arrows &middot; order here = order in the table</span>
+      </div>
+
+      <div class="columns-table-head">
+        <span>Header text</span>
+        <span>AppSheet column</span>
+        <span>Preview sample</span>
+        <span class="col-actions-head" aria-hidden="true"></span>
+      </div>
+
+      <div id="columns-list"></div>
+
+      <button type="button" id="add-column" class="btn btn-add">
+        <span class="plus">+</span> Add Column
+      </button>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <h2>Header Settings</h2>
+        <span class="card-hint">Applies to every <code>&lt;th&gt;</code></span>
+      </div>
+
+      <div class="field-group">
+        <span class="field-label">Header text</span>
+        <div class="segmented" data-group="headerCase">
+          <label><input type="radio" name="headerCase" value="original" checked><span>Original</span></label>
+          <label><input type="radio" name="headerCase" value="upper"><span>UPPERCASE</span></label>
+          <label><input type="radio" name="headerCase" value="lower"><span>lowercase</span></label>
+          <label><input type="radio" name="headerCase" value="formal"><span>Formal Case</span></label>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <span class="field-label">Header style</span>
+        <div class="segmented" data-group="headerStyle">
+          <label><input type="radio" name="headerStyle" value="normal" checked><span>Normal</span></label>
+          <label><input type="radio" name="headerStyle" value="bold"><span>Bold</span></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <h2>Row Value Settings</h2>
+        <span class="card-hint">Applies to every <code>&lt;td&gt;</code></span>
+      </div>
+
+      <div class="field-group">
+        <span class="field-label">Row value function</span>
+        <div class="segmented" data-group="rowFn">
+          <label><input type="radio" name="rowFn" value="original" checked><span>Original</span></label>
+          <label><input type="radio" name="rowFn" value="upper"><span>UPPER()</span></label>
+          <label><input type="radio" name="rowFn" value="lower"><span>LOWER()</span></label>
+          <label><input type="radio" name="rowFn" value="proper"><span>PROPER()</span></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <h2>Table Settings</h2>
+      </div>
+
+      <div class="field-group inline-field">
+        <span class="field-label">Border</span>
+        <button type="button" id="border-toggle" class="switch is-on" role="switch" aria-checked="true">
+          <span class="switch-knob"></span>
+        </button>
+        <span id="border-toggle-label" class="switch-state">ON</span>
+      </div>
+
+      <div class="field-group inline-field">
+        <label class="field-label" for="table-width">Width</label>
+        <input type="text" id="table-width" value="100%" class="text-input text-input-sm" maxlength="12">
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ============ OUTPUT COLUMN ============ -->
+  <section class="col col-output">
+
+    <div class="card preview-card">
+      <div class="card-head">
+        <h2>Live Preview</h2>
+        <span class="card-hint">Updates automatically</span>
+      </div>
+      <div class="preview-scroll">
+        <div id="preview-wrap"></div>
+      </div>
+    </div>
+
+    <div class="card formula-card">
+      <div class="card-head">
+        <h2>Generated Formula</h2>
+        <button type="button" id="copy-btn" class="btn btn-copy">
+          <span class="copy-icon">⧉</span> Copy Formula
+        </button>
+      </div>
+      <pre id="formula-output"><code id="formula-code"></code></pre>
+    </div>
+
+  </section>
+
+</main>
+
+<footer class="footer">
+  <p>Built for AppSheet makers &middot; paste the generated formula directly into a Text column's <em>App formula</em>.</p>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
