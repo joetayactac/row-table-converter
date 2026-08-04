@@ -1,0 +1,486 @@
+/* ============================================================
+   AppSheet HTML Table Formula Generator
+   Design language: spreadsheet formula editor — graph-paper
+   backdrop, monospace formula output, colour-coded column
+   references that trace a column through config → preview → formula.
+   ============================================================ */
+
+:root {
+  --bg: #eef1f6;
+  --grid-line: #dde3ed;
+  --surface: #ffffff;
+  --surface-sunken: #f6f8fb;
+  --border: #dbe1ea;
+  --border-strong: #c3ccd9;
+
+  --ink: #16202e;
+  --ink-muted: #5b6472;
+  --ink-faint: #8b93a1;
+
+  --accent: #2c53c7;
+  --accent-ink: #ffffff;
+  --accent-soft: #e8edfc;
+
+  --danger: #d64550;
+  --danger-soft: #fbe7e8;
+
+  --string-color: #1f9d6c;
+  --fn-color: #2c53c7;
+
+  --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", "Fira Code", Menlo, Consolas, monospace;
+
+  --radius: 8px;
+  --radius-sm: 5px;
+  --shadow-card: 0 1px 2px rgba(22, 32, 46, 0.04), 0 1px 0 rgba(22, 32, 46, 0.03);
+}
+
+/* Rotating colour set used to tag each column and trace it
+   through the column row, the preview header, and the formula. */
+.tag-0 { --tag: #e8590c; }
+.tag-1 { --tag: #7048e8; }
+.tag-2 { --tag: #0c8599; }
+.tag-3 { --tag: #c2255c; }
+.tag-4 { --tag: #2f9e44; }
+.tag-5 { --tag: #f08c00; }
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  font-family: var(--font-ui);
+  color: var(--ink);
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 28px 28px;
+  background-attachment: fixed;
+  line-height: 1.45;
+}
+
+code, pre { font-family: var(--font-mono); }
+
+/* ---------------- Topbar ---------------- */
+
+.topbar {
+  border-bottom: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: saturate(140%) blur(6px);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.topbar-inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 18px 24px;
+}
+
+.brand { display: flex; align-items: center; gap: 14px; }
+
+.brand-mark {
+  flex: none;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  background: var(--ink);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 16px;
+  border-radius: var(--radius-sm);
+  letter-spacing: -0.5px;
+}
+
+.brand-text h1 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.brand-text p {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: var(--ink-muted);
+}
+
+.brand-text code {
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0 4px;
+  font-size: 12px;
+  color: var(--fn-color);
+}
+
+/* ---------------- Layout ---------------- */
+
+.layout {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 28px 24px 60px;
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 22px;
+  align-items: start;
+}
+
+.col-output { position: sticky; top: 92px; display: flex; flex-direction: column; gap: 22px; }
+
+/* ---------------- Card ---------------- */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+  padding: 18px 20px 20px;
+  margin-bottom: 22px;
+}
+
+.col-config .card:last-child { margin-bottom: 0; }
+
+.card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.card-head h2 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink);
+}
+
+.card-hint {
+  font-size: 12px;
+  color: var(--ink-faint);
+}
+
+.card-hint code {
+  background: var(--surface-sunken);
+  border-radius: 4px;
+  padding: 0 3px;
+  color: var(--fn-color);
+}
+
+/* ---------------- Columns table ---------------- */
+
+.columns-table-head {
+  display: grid;
+  grid-template-columns: 1fr 1fr 0.85fr 64px;
+  gap: 10px;
+  padding: 0 4px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-faint);
+}
+
+#columns-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+
+.column-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 0.85fr 64px;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 8px 8px 12px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--tag, var(--accent));
+  border-radius: var(--radius-sm);
+}
+
+.column-row .text-input { width: 100%; }
+
+.col-actions { display: flex; align-items: center; justify-content: flex-end; gap: 2px; }
+
+.icon-btn {
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--ink-faint);
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.icon-btn:hover { background: var(--border); color: var(--ink); }
+.icon-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.icon-btn:disabled:hover { background: transparent; }
+
+.icon-btn.remove:hover { background: var(--danger-soft); color: var(--danger); }
+
+/* ---------------- Inputs ---------------- */
+
+.text-input {
+  font-family: var(--font-ui);
+  font-size: 13.5px;
+  padding: 7px 9px;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ink);
+  min-width: 0;
+}
+
+.text-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.text-input-mono { font-family: var(--font-mono); font-size: 13px; }
+.text-input-sm { max-width: 110px; }
+
+/* ---------------- Add / copy buttons ---------------- */
+
+.btn {
+  font-family: var(--font-ui);
+  font-size: 13.5px;
+  font-weight: 600;
+  border-radius: 7px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background 0.12s ease, transform 0.05s ease, border-color 0.12s ease;
+}
+
+.btn:active { transform: translateY(1px); }
+
+.btn-add {
+  width: 100%;
+  padding: 9px 12px;
+  background: var(--surface);
+  border: 1px dashed var(--border-strong);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.btn-add:hover { background: var(--accent-soft); border-color: var(--accent); }
+
+.btn-add .plus { font-size: 15px; }
+
+.btn-copy {
+  padding: 7px 12px;
+  background: var(--ink);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.btn-copy:hover { background: #263047; }
+
+.btn-copy.copied { background: var(--string-color); }
+
+.copy-icon { font-size: 13px; }
+
+/* ---------------- Field groups / segmented control ---------------- */
+
+.field-group { margin-bottom: 14px; }
+.field-group:last-child { margin-bottom: 0; }
+
+.field-label {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink-muted);
+  margin-bottom: 7px;
+}
+
+.segmented {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 3px;
+}
+
+.segmented label {
+  position: relative;
+  cursor: pointer;
+}
+
+.segmented input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.segmented span {
+  display: inline-block;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-muted);
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.segmented input:checked + span {
+  background: var(--surface);
+  color: var(--accent);
+  box-shadow: 0 1px 2px rgba(22, 32, 46, 0.12);
+}
+
+.segmented input:focus-visible + span {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.inline-field {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.inline-field .field-label { margin-bottom: 0; min-width: 46px; }
+
+/* Toggle switch */
+
+.switch {
+  width: 42px;
+  height: 24px;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-sunken);
+  position: relative;
+  cursor: pointer;
+  padding: 0;
+  flex: none;
+}
+
+.switch-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.25);
+  transition: transform 0.15s ease;
+}
+
+.switch.is-on { background: var(--accent); border-color: var(--accent); }
+.switch.is-on .switch-knob { transform: translateX(18px); }
+
+.switch-state {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-muted);
+  min-width: 26px;
+}
+
+/* ---------------- Preview ---------------- */
+
+.preview-scroll { overflow-x: auto; }
+
+#preview-wrap table {
+  border-collapse: collapse;
+  font-size: 13.5px;
+  min-width: 100%;
+}
+
+#preview-wrap th, #preview-wrap td {
+  padding: 8px 12px;
+  text-align: left;
+  border: 1px solid var(--border-strong);
+}
+
+#preview-wrap thead th {
+  background: var(--surface-sunken);
+  position: relative;
+}
+
+#preview-wrap thead th .th-underline {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 2px;
+  background: var(--tag, var(--accent));
+}
+
+#preview-wrap .empty-state {
+  color: var(--ink-faint);
+  font-size: 13.5px;
+  padding: 20px 4px;
+}
+
+/* ---------------- Formula output ---------------- */
+
+.formula-card #formula-output {
+  margin: 0;
+  background: var(--ink);
+  color: #e7ecf7;
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  font-size: 12.8px;
+  line-height: 1.65;
+  overflow-x: auto;
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.tok-str { color: var(--string-color); }
+.tok-fn { color: #79a7ff; font-weight: 600; }
+.tok-punc { color: #8b93a1; }
+.tok-col { color: var(--tag, #f2a93b); font-weight: 600; }
+
+/* ---------------- Footer ---------------- */
+
+.footer {
+  text-align: center;
+  padding: 26px 20px 40px;
+  color: var(--ink-faint);
+  font-size: 12.5px;
+}
+
+.footer em { color: var(--ink-muted); font-style: normal; font-weight: 600; }
+
+/* ---------------- Responsive ---------------- */
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  .col-output { position: static; }
+  .columns-table-head { display: none; }
+  .column-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .column-row .col-actions { justify-content: flex-start; }
+}
+
+@media (max-width: 520px) {
+  .topbar-inner { padding: 14px 16px; }
+  .layout { padding: 20px 14px 48px; }
+  .brand-text h1 { font-size: 16px; }
+  .card { padding: 14px 14px 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
