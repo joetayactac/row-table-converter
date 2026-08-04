@@ -16,10 +16,15 @@
     headerStyle: "bold",
     rowFn: "original",
     borderOn: true,
-    tableWidth: "100%"
+    tableWidth: "100%",
+    textAlign: "left"
   };
 
-  const TAG_COUNT = 6;
+  // Only emit an align attribute when it differs from the browser default,
+  // keeping the formula clean when the user leaves alignment untouched.
+  function alignAttr() {
+    return settings.textAlign && settings.textAlign !== "left" ? ` align='${settings.textAlign}'` : "";
+  }
 
   /* ---------------- DOM refs ---------------- */
 
@@ -80,12 +85,15 @@
 
     columns.forEach((col, index) => {
       const row = document.createElement("div");
-      row.className = `column-row tag-${index % TAG_COUNT}`;
+      row.className = "column-row";
       row.dataset.id = col.id;
 
+      const badge = String(index + 1).padStart(2, "0");
+
       row.innerHTML = `
+        <span class="col-index mono">${badge}</span>
         <input type="text" class="text-input header-input" placeholder="e.g. Vehicle No" value="${escapeHtml(col.header)}">
-        <input type="text" class="text-input text-input-mono column-input" placeholder="e.g. VEHICLE NO" value="${escapeHtml(col.column)}">
+        <input type="text" class="mono-input column-input" placeholder="e.g. VEHICLE NO" value="${escapeHtml(col.column)}">
         <input type="text" class="text-input sample-input" placeholder="Preview text" value="${escapeHtml(col.sample)}">
         <div class="col-actions">
           <button type="button" class="icon-btn move-up" title="Move up" aria-label="Move column up">▲</button>
@@ -165,11 +173,13 @@
     const borderAttr = settings.borderOn ? " border='1'" : "";
     const widthAttr = settings.tableWidth ? ` style="width:${escapeHtml(settings.tableWidth)}"` : "";
 
+    const cellAlignStyle = settings.textAlign ? ` style="text-align:${settings.textAlign}"` : "";
+
     let html = `<table${borderAttr}${widthAttr}><thead><tr>`;
-    columns.forEach((col, i) => {
+    columns.forEach((col) => {
       const headerText = applyCase(col.header, settings.headerCase) || "\u00A0";
       const inner = wrapHeaderStyle(escapeHtml(headerText), settings.headerStyle);
-      html += `<th class="tag-${i % TAG_COUNT}">${inner}<span class="th-underline"></span></th>`;
+      html += `<th${cellAlignStyle}>${inner}</th>`;
     });
     html += `</tr></thead><tbody><tr>`;
     columns.forEach((col) => {
@@ -177,7 +187,7 @@
       if (settings.rowFn === "upper") val = val.toUpperCase();
       else if (settings.rowFn === "lower") val = val.toLowerCase();
       else if (settings.rowFn === "proper") val = applyCase(val, "formal");
-      html += `<td>${escapeHtml(val) || "&nbsp;"}</td>`;
+      html += `<td${cellAlignStyle}>${escapeHtml(val) || "&nbsp;"}</td>`;
     });
     html += `</tr></tbody></table>`;
 
@@ -199,27 +209,27 @@
     lines.push({ html: tok("tok-str", `"${openTag}"`) });
     lines.push({ html: tok("tok-str", `"<tr>"`) });
 
-    columns.forEach((col, i) => {
+    columns.forEach((col) => {
       const headerText = applyCase(col.header, settings.headerCase);
       const escaped = escapeForAppSheetString(headerText);
       const inner = wrapHeaderStyle(escaped, settings.headerStyle);
-      const cellStr = `<th>${inner}</th>`;
-      lines.push({ html: tok("tok-str", `"${cellStr}"`), tagClass: `tag-${i % TAG_COUNT}` });
+      const cellStr = `<th${alignAttr()}>${inner}</th>`;
+      lines.push({ html: tok("tok-str", `"${cellStr}"`) });
     });
 
     lines.push({ html: tok("tok-str", `"</tr>"`) });
     lines.push({ html: tok("tok-str", `"<tr>"`) });
 
-    columns.forEach((col, i) => {
+    columns.forEach((col) => {
       const ref = cleanColumnRef(col.column) || "COLUMN";
       const colRef = `[${ref}]`;
       const fn = rowFnLabel(settings.rowFn);
       const punc = tok("tok-punc", ",");
-      const openTd = tok("tok-str", `"<td>"`);
+      const openTd = tok("tok-str", `"<td${alignAttr()}>"`);
       const closeTd = tok("tok-str", `"</td>"`);
       const refTok = tok("tok-col", colRef);
       const expr = fn ? `${tok("tok-fn", fn)}${tok("tok-punc", "(")}${refTok}${tok("tok-punc", ")")}` : refTok;
-      lines.push({ html: `${openTd}${punc}${expr}${punc}${closeTd}`, tagClass: `tag-${i % TAG_COUNT}` });
+      lines.push({ html: `${openTd}${punc}${expr}${punc}${closeTd}` });
     });
 
     lines.push({ html: tok("tok-str", `"</tr>"`) });
@@ -231,10 +241,9 @@
   function renderFormula() {
     const lines = buildFormulaLines();
     const body = lines
-      .map((line, i) => {
+      .map((line) => {
         const comma = line.last ? "" : tok("tok-punc", ",");
-        const cls = line.tagClass ? ` class="${line.tagClass}"` : "";
-        return `<span${cls}>${line.html}${comma}</span>`;
+        return `${line.html}${comma}`;
       })
       .join("\n");
 
@@ -255,7 +264,7 @@
       const headerText = applyCase(col.header, settings.headerCase);
       const escaped = escapeForAppSheetString(headerText);
       const inner = wrapHeaderStyle(escaped, settings.headerStyle);
-      plainLines.push(`"<th>${inner}</th>",`);
+      plainLines.push(`"<th${alignAttr()}>${inner}</th>",`);
     });
 
     plainLines.push(`"</tr>",`);
@@ -266,7 +275,7 @@
       const colRef = `[${ref}]`;
       const fn = rowFnLabel(settings.rowFn);
       const expr = fn ? `${fn}(${colRef})` : colRef;
-      plainLines.push(`"<td>",${expr},"</td>",`);
+      plainLines.push(`"<td${alignAttr()}>",${expr},"</td>",`);
     });
 
     plainLines.push(`"</tr>",`);
@@ -329,6 +338,13 @@
     });
   });
 
+  document.querySelectorAll('input[name="textAlign"]').forEach((el) => {
+    el.addEventListener("change", (e) => {
+      settings.textAlign = e.target.value;
+      renderOutputs();
+    });
+  });
+
   borderToggle.addEventListener("click", () => {
     settings.borderOn = !settings.borderOn;
     borderToggle.classList.toggle("is-on", settings.borderOn);
@@ -352,6 +368,7 @@
   document.querySelector(`input[name="headerCase"][value="${settings.headerCase}"]`).checked = true;
   document.querySelector(`input[name="headerStyle"][value="${settings.headerStyle}"]`).checked = true;
   document.querySelector(`input[name="rowFn"][value="${settings.rowFn}"]`).checked = true;
+  document.querySelector(`input[name="textAlign"][value="${settings.textAlign}"]`).checked = true;
 
   renderColumns();
   renderOutputs();
