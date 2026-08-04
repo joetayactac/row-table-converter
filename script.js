@@ -75,7 +75,7 @@
   }
 
   function rowFnLabel(fn) {
-    return { original: "", upper: "UPPER", lower: "LOWER", proper: "PROPER" }[fn] || "";
+    return { original: "", upper: "UPPER", lower: "LOWER" }[fn] || "";
   }
 
   /* ---------------- Column row rendering ---------------- */
@@ -186,7 +186,6 @@
       let val = col.sample || "";
       if (settings.rowFn === "upper") val = val.toUpperCase();
       else if (settings.rowFn === "lower") val = val.toLowerCase();
-      else if (settings.rowFn === "proper") val = applyCase(val, "formal");
       html += `<td${cellAlignStyle}>${escapeHtml(val) || "&nbsp;"}</td>`;
     });
     html += `</tr></tbody></table>`;
