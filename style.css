@@ -82,11 +82,6 @@ header.top{
   background: var(--red);
 }
 .logo .slash{ color: var(--muted); font-weight:400; }
-nav.links{ display:flex; gap:28px; font-size:14px; color: var(--muted); }
-nav.links a{ text-decoration:none; transition: color .15s; }
-nav.links a:hover{ color: var(--text); }
-@media (max-width: 640px){ nav.links{ display:none; } }
-
 /* YouTube button — outlined by default, fills with brand red on hover
    so it reads as a secondary action next to the primary red accent. */
 .youtube-btn{
@@ -134,14 +129,14 @@ nav.links a:hover{ color: var(--text); }
 
 /* ---------- HERO ---------- */
 .hero{
-  padding: 56px 0 40px;
+  padding: 44px 0 36px;
   display:grid;
   grid-template-columns: 1.05fr 0.95fr;
-  gap: 56px;
+  gap: 48px;
   align-items:start;
 }
 @media (max-width: 900px){
-  .hero{ grid-template-columns: 1fr; padding: 40px 0 24px; gap: 32px; }
+  .hero{ grid-template-columns: 1fr; padding: 32px 0 20px; gap: 28px; }
 }
 
 .eyebrow{
@@ -150,7 +145,7 @@ nav.links a:hover{ color: var(--text); }
   font-size:12px; letter-spacing: 0.08em;
   color: var(--red);
   text-transform: uppercase;
-  margin-bottom: 18px;
+  margin-bottom: 14px;
 }
 .eyebrow .dot{
   width:6px; height:6px; background: var(--red); border-radius:50%;
@@ -159,18 +154,18 @@ nav.links a:hover{ color: var(--text); }
 @keyframes blink{ 0%,100%{opacity:1;} 50%{opacity:0.25;} }
 
 h1.headline{
-  font-size: clamp(30px, 3.8vw, 44px);
+  font-size: clamp(26px, 3.2vw, 36px);
   font-weight: 700;
-  line-height: 1.08;
-  margin-bottom: 16px;
+  line-height: 1.1;
+  margin-bottom: 12px;
 }
 h1.headline .accent{ color: var(--red); }
 
 .sub{
   color: var(--muted);
-  font-size: 15.5px;
+  font-size: 14.5px;
   max-width: 52ch;
-  margin-bottom: 28px;
+  margin-bottom: 24px;
 }
 .sub code.mono{
   background: var(--panel-2);
@@ -186,13 +181,13 @@ h1.headline .accent{ color: var(--red); }
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 8px;
-  padding: 20px 22px 22px;
-  margin-bottom: 20px;
+  padding: 18px 20px 20px;
+  margin-bottom: 16px;
   box-shadow: 0 1px 2px rgba(20,22,26,0.03);
 }
 .panel-head{
   display:flex; align-items:baseline; justify-content:space-between;
-  gap: 12px; margin-bottom: 16px; flex-wrap: wrap;
+  gap: 12px; margin-bottom: 14px; flex-wrap: wrap;
 }
 .panel-title{
   font-family:'Space Grotesk', sans-serif;
@@ -387,9 +382,9 @@ h1.headline .accent{ color: var(--red); }
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 8px;
-  padding: 32px;
+  padding: 24px;
   overflow:hidden;
-  min-height: 220px;
+  min-height: 180px;
   box-shadow: 0 1px 2px rgba(20,22,26,0.04), 0 8px 24px rgba(20,22,26,0.05);
 }
 .viewfinder .bracket{
