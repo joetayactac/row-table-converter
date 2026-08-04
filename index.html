@@ -3,141 +3,188 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AppSheet HTML Table Formula Generator</title>
+<title>HTML Table Formula Generator for AppSheet</title>
 <meta name="description" content="Convert AppSheet columns into a ready-to-copy HTML table CONCATENATE() formula.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<header class="topbar">
-  <div class="topbar-inner">
-    <div class="brand">
-      <span class="brand-mark">ƒx</span>
-      <div class="brand-text">
-        <h1>AppSheet HTML Table Formula Generator</h1>
-        <p>Build a <code>CONCATENATE()</code> formula that renders your columns as an HTML table.</p>
-      </div>
-    </div>
+<header class="top">
+  <div class="wrap topbar">
+    <div class="logo"><span class="finder"></span>TABLE<span class="slash">&nbsp;//&nbsp;</span>FORMULA</div>
+    <nav class="links">
+      <a href="#generate">Columns</a>
+      <a href="#formula">Formula</a>
+      <a href="#reference">Reference</a>
+    </nav>
   </div>
 </header>
 
-<main class="layout">
+<div class="wrap">
 
-  <!-- ============ CONFIG COLUMN ============ -->
-  <section class="col col-config">
+  <section class="hero" id="generate">
+    <div class="hero-left">
+      <div class="eyebrow"><span class="dot"></span>APPSHEET UTILITY</div>
+      <h1 class="headline">HTML Table <span class="accent">Formula</span> Generator</h1>
+      <p class="sub">Add your columns, set the header and row styling once, then copy a ready-made <code class="mono">CONCATENATE()</code> formula straight into an AppSheet Text column.</p>
 
-    <div class="card" id="columns-card">
-      <div class="card-head">
-        <h2>Columns</h2>
-        <span class="card-hint">Drag order with the arrows &middot; order here = order in the table</span>
-      </div>
-
-      <div class="columns-table-head">
-        <span>Header text</span>
-        <span>AppSheet column</span>
-        <span>Preview sample</span>
-        <span class="col-actions-head" aria-hidden="true"></span>
-      </div>
-
-      <div id="columns-list"></div>
-
-      <button type="button" id="add-column" class="btn btn-add">
-        <span class="plus">+</span> Add Column
-      </button>
-    </div>
-
-    <div class="card">
-      <div class="card-head">
-        <h2>Header Settings</h2>
-        <span class="card-hint">Applies to every <code>&lt;th&gt;</code></span>
-      </div>
-
-      <div class="field-group">
-        <span class="field-label">Header text</span>
-        <div class="segmented" data-group="headerCase">
-          <label><input type="radio" name="headerCase" value="original" checked><span>Original</span></label>
-          <label><input type="radio" name="headerCase" value="upper"><span>UPPERCASE</span></label>
-          <label><input type="radio" name="headerCase" value="lower"><span>lowercase</span></label>
-          <label><input type="radio" name="headerCase" value="formal"><span>Formal Case</span></label>
+      <div class="panel">
+        <div class="panel-head">
+          <span class="panel-title">Columns</span>
+          <span class="panel-hint">order here = order in the table</span>
         </div>
-      </div>
 
-      <div class="field-group">
-        <span class="field-label">Header style</span>
-        <div class="segmented" data-group="headerStyle">
-          <label><input type="radio" name="headerStyle" value="normal" checked><span>Normal</span></label>
-          <label><input type="radio" name="headerStyle" value="bold"><span>Bold</span></label>
+        <div class="columns-table-head">
+          <span>Header text</span>
+          <span>AppSheet column</span>
+          <span>Preview sample</span>
+          <span aria-hidden="true"></span>
         </div>
-      </div>
-    </div>
 
-    <div class="card">
-      <div class="card-head">
-        <h2>Row Value Settings</h2>
-        <span class="card-hint">Applies to every <code>&lt;td&gt;</code></span>
-      </div>
+        <div id="columns-list"></div>
 
-      <div class="field-group">
-        <span class="field-label">Row value function</span>
-        <div class="segmented" data-group="rowFn">
-          <label><input type="radio" name="rowFn" value="original" checked><span>Original</span></label>
-          <label><input type="radio" name="rowFn" value="upper"><span>UPPER()</span></label>
-          <label><input type="radio" name="rowFn" value="lower"><span>LOWER()</span></label>
-          <label><input type="radio" name="rowFn" value="proper"><span>PROPER()</span></label>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-head">
-        <h2>Table Settings</h2>
-      </div>
-
-      <div class="field-group inline-field">
-        <span class="field-label">Border</span>
-        <button type="button" id="border-toggle" class="switch is-on" role="switch" aria-checked="true">
-          <span class="switch-knob"></span>
-        </button>
-        <span id="border-toggle-label" class="switch-state">ON</span>
-      </div>
-
-      <div class="field-group inline-field">
-        <label class="field-label" for="table-width">Width</label>
-        <input type="text" id="table-width" value="100%" class="text-input text-input-sm" maxlength="12">
-      </div>
-    </div>
-
-  </section>
-
-  <!-- ============ OUTPUT COLUMN ============ -->
-  <section class="col col-output">
-
-    <div class="card preview-card">
-      <div class="card-head">
-        <h2>Live Preview</h2>
-        <span class="card-hint">Updates automatically</span>
-      </div>
-      <div class="preview-scroll">
-        <div id="preview-wrap"></div>
-      </div>
-    </div>
-
-    <div class="card formula-card">
-      <div class="card-head">
-        <h2>Generated Formula</h2>
-        <button type="button" id="copy-btn" class="btn btn-copy">
-          <span class="copy-icon">⧉</span> Copy Formula
+        <button type="button" id="add-column" class="btn-add">
+          <span class="plus">+</span> Add column
         </button>
       </div>
-      <pre id="formula-output"><code id="formula-code"></code></pre>
+
+      <div class="panel" id="header-settings">
+        <div class="panel-head">
+          <span class="panel-title">Header settings</span>
+          <span class="panel-hint">applies to every &lt;th&gt;</span>
+        </div>
+
+        <div class="field">
+          <label>Header text</label>
+          <div class="tabgroup" data-group="headerCase">
+            <label class="tab-opt"><input type="radio" name="headerCase" value="original" checked><span>Original</span></label>
+            <label class="tab-opt"><input type="radio" name="headerCase" value="upper"><span>UPPERCASE</span></label>
+            <label class="tab-opt"><input type="radio" name="headerCase" value="lower"><span>lowercase</span></label>
+            <label class="tab-opt"><input type="radio" name="headerCase" value="formal"><span>Formal Case</span></label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Header style</label>
+          <div class="tabgroup" data-group="headerStyle">
+            <label class="tab-opt"><input type="radio" name="headerStyle" value="normal" checked><span>Normal</span></label>
+            <label class="tab-opt"><input type="radio" name="headerStyle" value="bold"><span>Bold</span></label>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" id="row-settings">
+        <div class="panel-head">
+          <span class="panel-title">Row value settings</span>
+          <span class="panel-hint">applies to every &lt;td&gt;</span>
+        </div>
+
+        <div class="field">
+          <label>Row value function</label>
+          <div class="tabgroup" data-group="rowFn">
+            <label class="tab-opt"><input type="radio" name="rowFn" value="original" checked><span>Original</span></label>
+            <label class="tab-opt"><input type="radio" name="rowFn" value="upper"><span>UPPER()</span></label>
+            <label class="tab-opt"><input type="radio" name="rowFn" value="lower"><span>LOWER()</span></label>
+            <label class="tab-opt"><input type="radio" name="rowFn" value="proper"><span>PROPER()</span></label>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" id="table-settings">
+        <div class="panel-head">
+          <span class="panel-title">Table settings</span>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label>Border</label>
+            <button type="button" id="border-toggle" class="switch is-on" role="switch" aria-checked="true">
+              <span class="switch-knob"></span>
+            </button>
+            <span id="border-toggle-label" class="switch-state">ON</span>
+          </div>
+          <div class="field">
+            <label for="table-width">Width</label>
+            <input type="text" id="table-width" value="100%" class="mono-input width-input" maxlength="12">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Text align <span class="field-note">(header &amp; row cells)</span></label>
+          <div class="tabgroup" data-group="textAlign">
+            <label class="tab-opt"><input type="radio" name="textAlign" value="left" checked><span>Left</span></label>
+            <label class="tab-opt"><input type="radio" name="textAlign" value="center"><span>Center</span></label>
+            <label class="tab-opt"><input type="radio" name="textAlign" value="right"><span>Right</span></label>
+          </div>
+        </div>
+      </div>
     </div>
 
+    <div class="hero-right">
+      <div class="viewfinder-outer">
+        <div class="viewfinder">
+          <span class="bracket tl"></span>
+          <span class="bracket tr"></span>
+          <span class="bracket bl"></span>
+          <span class="scanline"></span>
+          <div class="preview-scroll">
+            <div id="preview-wrap"></div>
+          </div>
+        </div>
+        <div class="viewfinder-caption">
+          <span>Live preview</span>
+          <span class="status">Updates automatically</span>
+        </div>
+      </div>
+    </div>
   </section>
 
-</main>
+  <section class="formula" id="formula">
+    <div class="section-label"><span class="mark"></span>Generated formula</div>
+    <p class="sub" style="margin-bottom:16px;">Copy this and paste it into a <strong>Text-type column's App formula</strong> in AppSheet.</p>
+    <div class="terminal">
+      <div class="terminal-bar">
+        <span class="path mono">CONCATENATE()</span>
+        <div class="dots"><span></span><span></span><span></span></div>
+      </div>
+      <div class="terminal-body">
+        <pre id="formula-output"><code id="formula-code"></code></pre>
+      </div>
+    </div>
+    <button class="copy-btn" id="copy-btn">Copy formula</button>
+  </section>
 
-<footer class="footer">
-  <p>Built for AppSheet makers &middot; paste the generated formula directly into a Text column's <em>App formula</em>.</p>
+  <section class="reference" id="reference">
+    <div class="section-label"><span class="mark"></span>Function reference</div>
+    <div class="ref-wrap">
+      <table class="ref-table">
+        <thead>
+          <tr><th>Token</th><th>Controls</th><th>Accepted values</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="param mono">CONCATENATE()</td><td class="desc">Joins every string and column value into one HTML block</td><td class="vals mono">wraps the whole formula</td></tr>
+          <tr><td class="param mono">&lt;th&gt; / &lt;td&gt;</td><td class="desc">Header and row cells for each column, in the order set above</td><td class="vals mono">one pair per column</td></tr>
+          <tr><td class="param mono">UPPER()</td><td class="desc">Converts a row value to uppercase before it's placed in the cell</td><td class="vals mono">Row value settings</td></tr>
+          <tr><td class="param mono">LOWER()</td><td class="desc">Converts a row value to lowercase</td><td class="vals mono">Row value settings</td></tr>
+          <tr><td class="param mono">PROPER()</td><td class="desc">Capitalizes the first letter of each word in a row value</td><td class="vals mono">Row value settings</td></tr>
+          <tr><td class="param mono">border</td><td class="desc">Adds a 1px border to every cell when turned on</td><td class="vals mono">ON / OFF</td></tr>
+          <tr><td class="param mono">width</td><td class="desc">Sets the rendered width of the table</td><td class="vals mono">e.g. 100%, 600px</td></tr>
+          <tr><td class="param mono">align</td><td class="desc">Horizontal text alignment for header and row cells</td><td class="vals mono">left / center / right</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <div class="wrap footer-row">
+    <span class="mono">TABLE // FORMULA — AppSheet HTML table generator</span>
+    <span class="mono muted">no data leaves your browser</span>
+  </div>
 </footer>
 
 <script src="script.js"></script>
