@@ -4,9 +4,9 @@
   /* ---------------- State ---------------- */
 
   let columns = [
-    { header: "Header Name 1", column: "Appsheet Column Name 1", sample: "Text 1" },
-    { header: "Header Name 2", column: "Appsheet Column Name 2", sample: "Text 2" },
-    { header: "Header Name 3", column: "Appsheet Column Name 3", sample: "Text 3" }
+    { header: "Header Name 1", column: "Column Name 1", sample: "Value 1" },
+    { header: "Header Name 2", column: "Column Name 2", sample: "Value 2" },
+    { header: "Header Name 3", column: "Column Name 3", sample: "Value 3" }
   ];
   let nextId = columns.length;
   columns = columns.map((c, i) => ({ id: i, ...c }));
